@@ -1,0 +1,15 @@
+version: '2.1'
+
+services:
+  mlinar-api:
+    image: mlinar-api-dev
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: development
+    ports:
+      - 80:80
+      - 9229:9229
+    ## set your startup file here
+    command: node --inspect index.js
