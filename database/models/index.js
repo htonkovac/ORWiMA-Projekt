@@ -1,13 +1,13 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require('sequelize');
-var basename = path.basename(__filename);
-var config = require(__dirname + '/../../config/database/config');
-var db = {};
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const basename = path.basename(__filename);
+const config = require(__dirname + '/../../config/database/config');
+let db = {};
 
-var sequelize = new Sequelize(config.database, config.username, config.password, config);
+let sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 
 fs
@@ -29,4 +29,4 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
+module.exports = db
