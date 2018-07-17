@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Locations', {
@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       coordinates: {
-        type: Sequelize.GEOMETRY('POINT', 4326),
+        type: Sequelize.GEOMETRY('POINT', 4326)
       },
       createdAt: {
         allowNull: false,
@@ -29,9 +29,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Locations');
+    return queryInterface.dropTable('Locations')
   }
-};
+}
