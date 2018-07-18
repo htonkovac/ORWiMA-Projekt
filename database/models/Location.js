@@ -1,16 +1,24 @@
 'use strict'
+const Sequelize = require('sequelize')
+const uc = require('../../utils/UnitConversion')
+
 const reqBodyConstants = {
   google_place_id: 'google_place_id',
   name: 'name',
   address: 'address',
-  lat: 'latitude',
-  lng: 'longitude'
+  lng: 'longitude',
+  lat: 'latitude'
 }
 
 const queryConstants = {
-  lat: 'latitude',
   lng: 'longitude',
+  lat: 'latitude',
   radius: 'radius'
+}
+
+const defaults = {
+  radiusInMeters: 10000,
+  radiusInKilometers: uc.metersToKilometers(this.radiusInMeters)
 }
 
 module.exports = (sequelize, DataTypes) => {
@@ -19,11 +27,12 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     address: DataTypes.STRING,
     coordinates: DataTypes.GEOMETRY('POINT', 4326)
-  }, {
+  },
+  {
     setterMethods: {
-      coordinates (latLng) {
+      coordinates (lngLat) {
         const point = {
-          'type': 'Point', 'coordinates': latLng, crs: { type: 'name', properties: { name: 'EPSG:4326' } }
+          'type': 'Point', 'coordinates': lngLat, crs: { type: 'name', properties: { name: 'EPSG:4326' } }
         }
         this.setDataValue('coordinates', point)
       }
@@ -35,31 +44,62 @@ module.exports = (sequelize, DataTypes) => {
       google_place_id: body[reqBodyConstants.google_place_id],
       name: body[reqBodyConstants.name],
       address: body[reqBodyConstants.address],
-      coordinates: [body[reqBodyConstants.lat], body[reqBodyConstants.lng]]
+      coordinates: [body[reqBodyConstants.lng], body[reqBodyConstants.lat]]
     }
   }
 
   Location.requestContainsValidCoordinates = (body) => {
     if (!Location.requestContainsCoordinates(body) ||
-        typeof body[reqBodyConstants.lng] !== 'number' ||
-        typeof body[reqBodyConstants.lat] !== 'number') {
+      typeof body[reqBodyConstants.lng] !== 'number' ||
+      typeof body[reqBodyConstants.lat] !== 'number') {
       return false
     }
     return true
   }
 
   Location.requestContainsCoordinates = (body) => {
-    if (body[reqBodyConstants.lat] == null || body[reqBodyConstants.lng] == null) {
+    if (body[reqBodyConstants.lng] == null || body[reqBodyConstants.lat] == null) {
       return false
     }
     return true
   }
 
   Location.IsLocationsQueryValid = (query) => {
-    if (typeof query[queryConstants.lat] === 'number' && typeof query[queryConstants.lng] === 'number' && typeof query[queryConstants.radius] === 'number') {
+    if (query[queryConstants.radius] != null && typeof query[queryConstants.radius] !== 'number') {
+      return false
+    }
+
+    if (typeof query[queryConstants.lng] === 'number' && typeof query[queryConstants.lat] === 'number') {
       return true
     }
     return false
+  }
+
+  Location.findAllLocationsWithinRadius = (query) => {
+    return Location.findAll({
+      attributes: {
+        include: [
+          [
+            Sequelize.fn(
+              'ST_Distance',
+              Sequelize.col('coordinates'),
+              Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat])
+            ),
+            'distance'
+          ]
+        ]
+      },
+      where: Sequelize.where(
+        Sequelize.fn(
+          'ST_DWithin',
+          Sequelize.col('location'),
+          Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]),
+          defaultDistance
+        ),
+        true
+      ),
+      order: Sequelize.literal('distance ASC')
+    })
   }
 
   Location.prototype.getUpdatedPropertiesFromRequestBody = function (body) {
@@ -67,11 +107,12 @@ module.exports = (sequelize, DataTypes) => {
       google_place_id: body[reqBodyConstants.google_place_id] || this.google_place_id,
       name: body[reqBodyConstants.name] || this.name,
       address: body[reqBodyConstants.address] || this.address,
-      coordinates: [body[reqBodyConstants.lat] || this.coordinates.coordinates[0], body[reqBodyConstants.lng] || this.cooridantes.coordinates[1]]
+      coordinates: [body[reqBodyConstants.lng] || this.coordinates.coordinates[0], body[reqBodyConstants.lat] || this.cooridantes.coordinates[1]]
     }
   }
 
   Location.reqBodyConstants = reqBodyConstants
   Location.queryConstants = queryConstants
+  Location.defaults = defaults
   return Location
 }
