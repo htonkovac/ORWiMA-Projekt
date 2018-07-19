@@ -18,7 +18,11 @@ const queryConstants = {
 
 const defaults = {
   radiusInMeters: 10000,
-  radiusInKilometers: uc.metersToKilometers(this.radiusInMeters)
+  WGS84_psudoMercator: 3857,
+  WGS84: 4326,
+  get radiusInKilometers () { return uc.metersToKilometers(this.radiusInMeters) },
+  get SRID () { return this.WGS84 }
+
 }
 
 module.exports = (sequelize, DataTypes) => {
@@ -26,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
     google_place_id: DataTypes.STRING,
     name: DataTypes.STRING,
     address: DataTypes.STRING,
-    coordinates: DataTypes.GEOMETRY('POINT', 4326)
+    coordinates: DataTypes.GEOMETRY('POINT', defaults.SRID)
   },
   {
     setterMethods: {
       coordinates (lngLat) {
         const point = {
-          'type': 'Point', 'coordinates': lngLat, crs: { type: 'name', properties: { name: 'EPSG:4326' } }
+          'type': 'Point', 'coordinates': lngLat, crs: { type: 'name', properties: { name: 'EPSG:' + defaults.SRID } }
         }
         this.setDataValue('coordinates', point)
       }
@@ -48,42 +52,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
 
-  Location.requestContainsValidCoordinates = (body) => {
-    if (!Location.requestContainsCoordinates(body) ||
-      typeof body[reqBodyConstants.lng] !== 'number' ||
-      typeof body[reqBodyConstants.lat] !== 'number') {
-      return false
-    }
-    return true
-  }
-
-  Location.requestContainsCoordinates = (body) => {
-    if (body[reqBodyConstants.lng] == null || body[reqBodyConstants.lat] == null) {
-      return false
-    }
-    return true
-  }
-
-  Location.IsLocationsQueryValid = (query) => {
-    if (query[queryConstants.radius] != null && typeof query[queryConstants.radius] !== 'number') {
-      return false
-    }
-
-    if (typeof query[queryConstants.lng] === 'number' && typeof query[queryConstants.lat] === 'number') {
-      return true
-    }
-    return false
-  }
-
   Location.findAllLocationsWithinRadius = (query) => {
-    return Location.findAll({
+    return Location.findAndCountAll({
       attributes: {
         include: [
           [
             Sequelize.fn(
               'ST_Distance',
               Sequelize.col('coordinates'),
-              Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat])
+              Sequelize.fn('ST_SetSRID', Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]), defaults.SRID)
             ),
             'distance'
           ]
@@ -92,9 +69,9 @@ module.exports = (sequelize, DataTypes) => {
       where: Sequelize.where(
         Sequelize.fn(
           'ST_DWithin',
-          Sequelize.col('location'),
-          Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]),
-          defaultDistance
+          Sequelize.col('coordinates'),
+          Sequelize.fn('ST_SetSRID', Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]), defaults.SRID),
+          query[queryConstants.radius]
         ),
         true
       ),
