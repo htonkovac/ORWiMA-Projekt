@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-app.use('/', locationsRouter)
+app.use('/v1/locations', locationsRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
