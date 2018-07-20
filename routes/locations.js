@@ -8,7 +8,7 @@ const invalidRequestHandler = require('../utils/invalidRequestHandler')
 let router = express.Router()
 
 /* POST create new Location */
-router.post('/create', [
+router.post('/', [
   check([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric()
 ], invalidRequestHandler, function (req, res, next) {
   return Location.create(Location.getObjectFromRequestBody(req.body))
@@ -17,7 +17,7 @@ router.post('/create', [
 })
 
 /* GET read one location by location_id */
-router.get('/location/:location_id', [
+router.get('/:location_id', [
   check('location_id').isInt()
 ], invalidRequestHandler, (req, res, next) => {
   Location.findById(req.params.location_id)
@@ -35,7 +35,7 @@ router.get('/location/:location_id', [
 })
 
 /* PUT update one location by location_id */
-router.put('/location/:location_id', [
+router.put('/:location_id', [
   check('location_id').isInt(),
   check([Location.reqBodyConstants.lng,
     Location.reqBodyConstants.lat]).optional().isNumeric()
@@ -52,7 +52,7 @@ router.put('/location/:location_id', [
 })
 
 /* DELETE read one location by location_id */
-router.delete('/location/:location_id', [
+router.delete('/:location_id', [
   check('location_id').isInt()
 ], invalidRequestHandler, (req, res, next) => {
   Location.findById(req.params.location_id)
@@ -77,32 +77,8 @@ router.delete('/location/:location_id', [
     )
 })
 
-// /* GET read all locations in radius */
-// router.get('/locations', (req, res, next) => {
-//   console.log(req.query)
-//   if (!Location.IsLocationsQueryValid(req.query)) {
-//     return res.status(HttpStatus.BAD_REQUEST).json(
-//       { err: 'Get request query needs to contain: ' + Location.queryConstants.lng + ',' + Location.queryConstants.lat + ' and ' + Location.queryConstants.radius })
-//   }
-
-//   let attributes = Object.keys(Location.attributes)
-//   let location = sequelize.literal(`ST_GeomFromText('POINT(${req.query[Location.queryConstants.lng]} ${req.query[Location.queryConstants.lat]})')`)
-//   let distance = sequelize.fn('ST_Distance_Sphere', sequelize.literal('location'), location)
-//   attributes.push([distance, 'distance'])
-
-//   Location.findAll({
-//     attributes: attributes,
-//     order: 'distance',
-//     where: sequelize.where(distance, { $lte: res.query[Location.queryConstants.radius] }),
-//     logging: console.log
-//   })
-//     .then(function (instance) {
-//       return res.json(200, instance)
-//     })
-// })
-
 /* GET read all locations in radius */
-router.get('/locations', [
+router.get('/', [
   check([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric(),
   check(Location.reqBodyConstants.radius).optional().isNumeric()
 ], async (req, res, next) => {
