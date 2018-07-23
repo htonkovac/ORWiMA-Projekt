@@ -91,7 +91,8 @@ router.get('/', [
     let result = await Location.findAllLocationsWithinRadius(req.query)
     return res.status(HttpStatus.OK).json({count: result.count, locations: result.rows})
   } catch (err) {
-    return res.status(HttpStatus.NOT_FOUND).send()
+    console.error(err)
+    return res.status(HttpStatus.NOT_FOUND).send(err)
   }
 })
 
