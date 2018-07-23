@@ -8,6 +8,10 @@ services:
       dockerfile: Dockerfile.dev
     environment:
       NODE_ENV: development
+      DB_URL: ${DB_URL}
+      DB_USER:  ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_TABLE_NAME: ${DB_TABLE_NAME}
     ports:
       - 80:80
       - 9229:9229
