@@ -1,7 +1,7 @@
 const express = require('express')
 const HttpStatus = require('http-status-codes')
 const Location = require('../database/models').Location
-const check = require('express-validator/check').check
+const check = require('express-validator/check')
 const uc = require('../utils/UnitConversion')
 const invalidRequestHandler = require('../utils/invalidRequestHandler')
 
@@ -9,7 +9,7 @@ let router = express.Router()
 
 /* POST create new Location */
 router.post('/', [
-  check([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric()
+  check.body([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric()
 ], invalidRequestHandler, function (req, res, next) {
   return Location.create(Location.getObjectFromRequestBody(req.body))
     .then(loc => res.status(HttpStatus.CREATED).send(loc))
@@ -18,7 +18,7 @@ router.post('/', [
 
 /* GET read one location by location_id */
 router.get('/:location_id', [
-  check('location_id').isInt()
+  check.param('location_id').isInt()
 ], invalidRequestHandler, (req, res, next) => {
   Location.findById(req.params.location_id)
     .then(
@@ -36,8 +36,8 @@ router.get('/:location_id', [
 
 /* PUT update one location by location_id */
 router.put('/:location_id', [
-  check('location_id').isInt(),
-  check([Location.reqBodyConstants.lng,
+  check.param('location_id').isInt(),
+  check.body([Location.reqBodyConstants.lng,
     Location.reqBodyConstants.lat]).optional().isNumeric()
 ], invalidRequestHandler, async (req, res, next) => {
   try {
@@ -53,7 +53,7 @@ router.put('/:location_id', [
 
 /* DELETE read one location by location_id */
 router.delete('/:location_id', [
-  check('location_id').isInt()
+  check.param('location_id').isInt()
 ], invalidRequestHandler, (req, res, next) => {
   Location.findById(req.params.location_id)
     .then(
@@ -79,8 +79,8 @@ router.delete('/:location_id', [
 
 /* GET read all locations in radius */
 router.get('/', [
-  check([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric(),
-  check(Location.reqBodyConstants.radius).optional().isNumeric()
+  check.query([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric(),
+  check.query(Location.reqBodyConstants.radius).optional().isNumeric()
 ], async (req, res, next) => {
   if (req.query[Location.queryConstants.radius] == null) {
     req.query[Location.queryConstants.radius] = Location.defaults.radiusInMeters
