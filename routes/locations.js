@@ -79,14 +79,13 @@ router.delete('/:location_id', [
 
 /* GET read all locations in radius */
 router.get('/', [
-  check.query([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric(),
-  check.query(Location.reqBodyConstants.radius).optional().isNumeric()
-], async (req, res, next) => {
+  check.query([Location.queryConstants.lng, Location.queryConstants.lat]).isNumeric(),
+  check.query(Location.queryConstants.radius).optional().isInt()
+], invalidRequestHandler, async (req, res, next) => {
   if (req.query[Location.queryConstants.radius] == null) {
     req.query[Location.queryConstants.radius] = Location.defaults.radiusInMeters
-  } else {
-    req.query[Location.queryConstants.radius] = uc.kilometersToMeters(req.query[Location.queryConstants.radius])
   }
+
   try {
     let result = await Location.findAllLocationsWithinRadius(req.query)
     return res.status(HttpStatus.OK).json({count: result.count, locations: result.rows})

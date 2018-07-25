@@ -20,8 +20,8 @@ const defaults = {
   radiusInMeters: 10000,
   WGS84_psudoMercator: 3857,
   WGS84: 4326,
-  get radiusInKilometers () { return uc.metersToKilometers(this.radiusInMeters) },
-  get SRID () { return this.WGS84 }
+  get radiusInKilometers() { return uc.metersToKilometers(this.radiusInMeters) },
+  get SRID() { return this.WGS84 }
 
 }
 
@@ -32,16 +32,16 @@ module.exports = (sequelize, DataTypes) => {
     address: DataTypes.STRING,
     coordinates: DataTypes.GEOMETRY('POINT', defaults.SRID)
   },
-  {
-    setterMethods: {
-      coordinates (lngLat) {
-        const point = {
-          'type': 'Point', 'coordinates': lngLat, crs: { type: 'name', properties: { name: 'EPSG:' + defaults.SRID } }
+    {
+      setterMethods: {
+        coordinates(lngLat) {
+          const point = {
+            'type': 'Point', 'coordinates': lngLat, crs: { type: 'name', properties: { name: 'EPSG:' + defaults.SRID } }
+          }
+          this.setDataValue('coordinates', point)
         }
-        this.setDataValue('coordinates', point)
       }
-    }
-  })
+    })
 
   Location.getObjectFromRequestBody = (body) => {
     return {
@@ -57,11 +57,10 @@ module.exports = (sequelize, DataTypes) => {
       attributes: {
         include: [
           [
-            Sequelize.fn(
-              'ST_Distance',
+            Sequelize.fn('ST_Distance',
               Sequelize.col('coordinates'),
-              Sequelize.fn('ST_SetSRID', Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]), defaults.SRID)
-            ),
+              Sequelize.fn('GEOGRAPHY', Sequelize.fn('ST_SetSRID', Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]), defaults.SRID)
+              )),
             'distance'
           ]
         ]
@@ -69,8 +68,8 @@ module.exports = (sequelize, DataTypes) => {
       where: Sequelize.where(
         Sequelize.fn(
           'ST_DWithin',
-          Sequelize.col('coordinates'),
-          Sequelize.fn('ST_SetSRID', Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]), defaults.SRID),
+          Sequelize.fn('GEOGRAPHY', Sequelize.col('coordinates')),
+          Sequelize.fn('GEOGRAPHY', Sequelize.fn('ST_SetSRID', Sequelize.fn('ST_MakePoint', query[queryConstants.lng], query[queryConstants.lat]), defaults.SRID)),
           query[queryConstants.radius]
         ),
         true
