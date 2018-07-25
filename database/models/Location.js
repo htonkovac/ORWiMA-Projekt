@@ -20,8 +20,8 @@ const defaults = {
   radiusInMeters: 10000,
   WGS84_psudoMercator: 3857,
   WGS84: 4326,
-  get radiusInKilometers() { return uc.metersToKilometers(this.radiusInMeters) },
-  get SRID() { return this.WGS84 }
+  get radiusInKilometers () { return uc.metersToKilometers(this.radiusInMeters) },
+  get SRID () { return this.WGS84 }
 
 }
 

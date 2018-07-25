@@ -2,7 +2,6 @@ const express = require('express')
 const HttpStatus = require('http-status-codes')
 const Location = require('../database/models').Location
 const check = require('express-validator/check')
-const uc = require('../utils/UnitConversion')
 const invalidRequestHandler = require('../utils/invalidRequestHandler')
 
 let router = express.Router()
@@ -13,7 +12,16 @@ router.post('/', [
 ], invalidRequestHandler, function (req, res, next) {
   return Location.create(Location.getObjectFromRequestBody(req.body))
     .then(loc => res.status(HttpStatus.CREATED).send(loc))
-    .catch(() => res.status(HttpStatus.BAD_REQUEST).json({err: 'error'}))
+    .catch((err) => res.status(HttpStatus.BAD_REQUEST).json({errors: ['Unable to create location', err]}))
+})
+/* GET get all locations */
+router.get('/all', async (req, res) => {
+  try {
+    const result = await Location.findAndCountAll()
+    return res.status(HttpStatus.OK).json({count: result.count, locations: result.rows})
+  } catch (err) {
+    return res.status(HttpStatus.NOT_FOUND).json({ errors: ['No locations found'] })
+  }
 })
 
 /* GET read one location by location_id */
@@ -26,7 +34,7 @@ router.get('/:location_id', [
         if (loc != null) {
           return res.status(HttpStatus.OK).json(loc)
         } else {
-          return res.status(HttpStatus.NOT_FOUND).json(null)
+          return res.status(HttpStatus.NOT_FOUND).json({ errors: ['Location not found'] })
         }
       }
     ).catch(
@@ -47,7 +55,7 @@ router.put('/:location_id', [
     loc = await Location.findById(req.params.location_id)
     return res.status(HttpStatus.OK).json(loc)
   } catch (err) {
-    return res.status(HttpStatus.NOT_FOUND).json({ err })
+    return res.status(HttpStatus.NOT_FOUND).json({ errors: [err] })
   }
 })
 
@@ -66,10 +74,10 @@ router.delete('/:location_id', [
                 return res.status(HttpStatus.OK).json(loc)
               })
             .catch(
-              (err) => res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(err)
+              (err) => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({errors: [err]})
             )
         } else {
-          return res.status(HttpStatus.NOT_FOUND).json({ err: 'Location not found.' })
+          return res.status(HttpStatus.NOT_FOUND).json({ errors: ['Location not found.'] })
         }
       }
     ).catch(
@@ -79,9 +87,15 @@ router.delete('/:location_id', [
 
 /* GET read all locations in radius */
 router.get('/', [
-  check.query([Location.queryConstants.lng, Location.queryConstants.lat]).isNumeric(),
+  check.query([Location.queryConstants.lng, Location.queryConstants.lat]).optional().isNumeric(),
   check.query(Location.queryConstants.radius).optional().isInt()
-], invalidRequestHandler, async (req, res, next) => {
+], invalidRequestHandler,
+async (req, res, next) => {
+  if (req.query[Location.queryConstants.lng] == null || req.query[Location.queryConstants.lat] == null) {
+    req.query[Location.queryConstants.lng] = 15.952532
+    req.query[Location.queryConstants.lat] = 45.8124106
+  }
+
   if (req.query[Location.queryConstants.radius] == null) {
     req.query[Location.queryConstants.radius] = Location.defaults.radiusInMeters
   }
