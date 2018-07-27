@@ -81,7 +81,7 @@ router.delete('/:location_id', [
         }
       }
     ).catch(
-      (err) => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ err })
+      (err) => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ errors: [err] })
     )
 })
 
@@ -105,7 +105,7 @@ async (req, res, next) => {
     return res.status(HttpStatus.OK).json({count: result.count, locations: result.rows})
   } catch (err) {
     console.error(err)
-    return res.status(HttpStatus.NOT_FOUND).send(err)
+    return res.status(HttpStatus.NOT_FOUND).json({errors: [err]})
   }
 })
 
