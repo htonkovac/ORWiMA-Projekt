@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "inspect": "node --inspect=0.0.0.0:9229 ./bin/www"
+    "inspect": "node --inspect=0.0.0.0:9229 ./bin/www",
+    "migrations-revert": "node_modules/.bin/sequelize db:migrate:undo",
+    "migrations-run": "node_modules/.bin/sequelize db:migrate"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
