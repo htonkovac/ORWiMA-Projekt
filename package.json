@@ -6,7 +6,9 @@
     "start": "node ./bin/www",
     "inspect": "node --inspect=0.0.0.0:9229 ./bin/www",
     "migrations-revert": "node_modules/.bin/sequelize db:migrate:undo",
-    "migrations-run": "node_modules/.bin/sequelize db:migrate"
+    "migrations-run": "node_modules/.bin/sequelize db:migrate",
+    "docker-up": "docker-compose --file docker-compose.dev.yml up",
+    "docker-build": "docker-compose --file docker-compose.dev.yml build --no-cache && docker-compose --file docker-compose.dev.yml up"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",

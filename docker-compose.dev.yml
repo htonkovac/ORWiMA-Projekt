@@ -18,3 +18,32 @@ services:
     ## set your startup file here
     volumes: 
       - .:/usr/src/app
+    networks: 
+      db:
+
+
+  postgres:
+    image: mdillon/postgis
+    environment: 
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_DB: "${DB_DATABASE_NAME}"
+    ports:
+      - 5432:5432
+    networks:
+      db:
+        aliases: 
+          - ${DB_HOST}
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 8080:80
+    environment: 
+      PGADMIN_DEFAULT_EMAIL: "user@pg.admin"
+      PGADMIN_DEFAULT_PASSWORD: "password"
+    networks:
+      db:
+    logging:
+      driver: none
+networks:
+  db:
