@@ -28,6 +28,15 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      contact: {
+        type: Sequelize.STRING, allowNull: true
+      },
+      working_hours: {
+        type: Sequelize.JSONB, allowNull: true
+      },
+      type: {
+        type: Sequelize.STRING, allowNull: true
       }
     })
   },

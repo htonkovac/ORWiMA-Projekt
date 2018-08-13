@@ -7,7 +7,10 @@ const reqBodyConstants = {
   name: 'name',
   address: 'address',
   lng: 'longitude',
-  lat: 'latitude'
+  lat: 'latitude',
+  contact: 'contact',
+  working_hours: 'working_hours',
+  type: 'type'
 }
 
 const queryConstants = {
@@ -20,8 +23,8 @@ const defaults = {
   radiusInMeters: 10000,
   WGS84_psudoMercator: 3857,
   WGS84: 4326,
-  get radiusInKilometers () { return uc.metersToKilometers(this.radiusInMeters) },
-  get SRID () { return this.WGS84 }
+  get radiusInKilometers() { return uc.metersToKilometers(this.radiusInMeters) },
+  get SRID() { return this.WGS84 }
 
 }
 
@@ -30,7 +33,10 @@ module.exports = (sequelize, DataTypes) => {
     google_place_id: DataTypes.STRING,
     name: DataTypes.STRING,
     address: DataTypes.STRING,
-    coordinates: DataTypes.GEOMETRY('POINT', defaults.SRID)
+    coordinates: DataTypes.GEOMETRY('POINT', defaults.SRID),
+    contact: DataTypes.STRING,
+    working_hours: DataTypes.JSONB,
+    type: DataTypes.STRING
   },
     {
       setterMethods: {
@@ -48,7 +54,10 @@ module.exports = (sequelize, DataTypes) => {
       google_place_id: body[reqBodyConstants.google_place_id],
       name: body[reqBodyConstants.name],
       address: body[reqBodyConstants.address],
-      coordinates: [body[reqBodyConstants.lng], body[reqBodyConstants.lat]]
+      coordinates: [body[reqBodyConstants.lng], body[reqBodyConstants.lat]],
+      contact: body[reqBodyConstants.contact],
+      working_hours: body[reqBodyConstants.working_hours],
+      type: body[reqBodyConstants.type]
     }
   }
 
@@ -83,7 +92,10 @@ module.exports = (sequelize, DataTypes) => {
       google_place_id: body[reqBodyConstants.google_place_id] || this.google_place_id,
       name: body[reqBodyConstants.name] || this.name,
       address: body[reqBodyConstants.address] || this.address,
-      coordinates: [body[reqBodyConstants.lng] || this.coordinates.coordinates[0], body[reqBodyConstants.lat] || this.cooridantes.coordinates[1]]
+      coordinates: [body[reqBodyConstants.lng] || this.coordinates.coordinates[0], body[reqBodyConstants.lat] || this.cooridantes.coordinates[1]],
+      contact: body[reqBodyConstants.contact] || this.contact,
+      working_hours: body[reqBodyConstants.working_hours] || this.working_hours,
+      type: body[reqBodyConstants.type] || this.type
     }
   }
 

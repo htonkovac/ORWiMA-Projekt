@@ -8,17 +8,18 @@ let router = express.Router()
 
 /* POST create new Location */
 router.post('/', [
-  check.body([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric()
+  check.body([Location.reqBodyConstants.lng, Location.reqBodyConstants.lat]).isNumeric(),
+  // check.body([Location.reqBodyConstants.working_hours]).isJSON()
 ], invalidRequestHandler, function (req, res, next) {
   return Location.create(Location.getObjectFromRequestBody(req.body))
     .then(loc => res.status(HttpStatus.CREATED).send(loc))
-    .catch((err) => res.status(HttpStatus.BAD_REQUEST).json({errors: ['Unable to create location', err]}))
+    .catch((err) => res.status(HttpStatus.BAD_REQUEST).json({ errors: ['Unable to create location', err] }))
 })
 /* GET get all locations */
 router.get('/all', async (req, res) => {
   try {
     const result = await Location.findAndCountAll()
-    return res.status(HttpStatus.OK).json({count: result.count, locations: result.rows})
+    return res.status(HttpStatus.OK).json({ count: result.count, locations: result.rows })
   } catch (err) {
     return res.status(HttpStatus.NOT_FOUND).json({ errors: ['No locations found'] })
   }
@@ -46,7 +47,9 @@ router.get('/:location_id', [
 router.put('/:location_id', [
   check.param('location_id').isInt(),
   check.body([Location.reqBodyConstants.lng,
-    Location.reqBodyConstants.lat]).optional().isNumeric()
+  Location.reqBodyConstants.lat]).optional().isNumeric(),
+  // check.body([Location.reqBodyConstants.working_hours]).optional().isJSON()
+
 ], invalidRequestHandler, async (req, res, next) => {
   try {
     let loc = await Location.findById(req.params.location_id)
@@ -74,7 +77,7 @@ router.delete('/:location_id', [
                 return res.status(HttpStatus.OK).json(loc)
               })
             .catch(
-              (err) => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({errors: [err]})
+              (err) => res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ errors: [err] })
             )
         } else {
           return res.status(HttpStatus.NOT_FOUND).json({ errors: ['Location not found.'] })
@@ -90,23 +93,23 @@ router.get('/', [
   check.query([Location.queryConstants.lng, Location.queryConstants.lat]).optional().isNumeric(),
   check.query(Location.queryConstants.radius).optional().isInt()
 ], invalidRequestHandler,
-async (req, res, next) => {
-  if (req.query[Location.queryConstants.lng] == null || req.query[Location.queryConstants.lat] == null) {
-    req.query[Location.queryConstants.lng] = 15.952532
-    req.query[Location.queryConstants.lat] = 45.8124106
-  }
+  async (req, res, next) => {
+    if (req.query[Location.queryConstants.lng] == null || req.query[Location.queryConstants.lat] == null) {
+      req.query[Location.queryConstants.lng] = 15.952532
+      req.query[Location.queryConstants.lat] = 45.8124106
+    }
 
-  if (req.query[Location.queryConstants.radius] == null) {
-    req.query[Location.queryConstants.radius] = Location.defaults.radiusInMeters
-  }
+    if (req.query[Location.queryConstants.radius] == null) {
+      req.query[Location.queryConstants.radius] = Location.defaults.radiusInMeters
+    }
 
-  try {
-    let result = await Location.findAllLocationsWithinRadius(req.query)
-    return res.status(HttpStatus.OK).json({count: result.count, locations: result.rows})
-  } catch (err) {
-    console.error(err)
-    return res.status(HttpStatus.NOT_FOUND).json({errors: [err]})
-  }
-})
+    try {
+      let result = await Location.findAllLocationsWithinRadius(req.query)
+      return res.status(HttpStatus.OK).json({ count: result.count, locations: result.rows })
+    } catch (err) {
+      console.error(err)
+      return res.status(HttpStatus.NOT_FOUND).json({ errors: [err] })
+    }
+  })
 
 module.exports = router
