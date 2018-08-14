@@ -10,7 +10,11 @@ const reqBodyConstants = {
   lat: 'latitude',
   contact: 'contact',
   working_hours: 'working_hours',
-  type: 'type'
+  type: 'type',
+  street: 'street',
+  city: 'city',
+  country: 'country',
+  region: 'region'
 }
 
 const queryConstants = {
@@ -36,7 +40,11 @@ module.exports = (sequelize, DataTypes) => {
     coordinates: DataTypes.GEOMETRY('POINT', defaults.SRID),
     contact: DataTypes.STRING,
     working_hours: DataTypes.JSONB,
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    street: DataTypes.STRING,
+    city: DataTypes.STRING,
+    country: DataTypes.STRING,
+    region: DataTypes.STRING
   },
     {
       setterMethods: {
@@ -57,7 +65,11 @@ module.exports = (sequelize, DataTypes) => {
       coordinates: [body[reqBodyConstants.lng], body[reqBodyConstants.lat]],
       contact: body[reqBodyConstants.contact],
       working_hours: body[reqBodyConstants.working_hours],
-      type: body[reqBodyConstants.type]
+      type: body[reqBodyConstants.type],
+      street: body[reqBodyConstants.street],
+      city: body[reqBodyConstants.city],
+      country: body[reqBodyConstants.country],
+      region: body[reqBodyConstants.region]
     }
   }
 
@@ -95,7 +107,11 @@ module.exports = (sequelize, DataTypes) => {
       coordinates: [body[reqBodyConstants.lng] || this.coordinates.coordinates[0], body[reqBodyConstants.lat] || this.cooridantes.coordinates[1]],
       contact: body[reqBodyConstants.contact] || this.contact,
       working_hours: body[reqBodyConstants.working_hours] || this.working_hours,
-      type: body[reqBodyConstants.type] || this.type
+      type: body[reqBodyConstants.type] || this.type,
+      street: body[reqBodyConstants.street] || this.street,
+      city: body[reqBodyConstants.city] || this.city,
+      country: body[reqBodyConstants.country] || this.country,
+      region: body[reqBodyConstants.region] || this.region
     }
   }
 
