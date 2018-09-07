@@ -39,8 +39,8 @@ services:
     ports:
       - 8080:80
     environment: 
-      PGADMIN_DEFAULT_EMAIL: "user@pg.admin"
-      PGADMIN_DEFAULT_PASSWORD: "password"
+      PGADMIN_DEFAULT_EMAIL: "${DB_USER}"
+      PGADMIN_DEFAULT_PASSWORD: "${DB_PASSWORD}"
     networks:
       db:
     logging:
