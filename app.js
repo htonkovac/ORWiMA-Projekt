@@ -4,6 +4,7 @@ var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 
 var locationsRouter = require('./routes/locations')
+var countriesAndCitiesRouter = require('./routes/countriesAndCities')
 
 var app = express()
 
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 app.use('/', locationsRouter)
+app.use('/filters',countriesAndCitiesRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

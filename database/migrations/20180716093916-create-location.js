@@ -43,11 +43,23 @@ module.exports = {
       },
       city: {
         type: Sequelize.STRING, allowNull: true
-      }, country: {
+      },
+      country: {
         type: Sequelize.STRING, allowNull: true
-      }, region: {
+      },
+      city_slug: {
+        type: Sequelize.STRING, allowNull: true
+      },
+      country_slug: {
+        type: Sequelize.STRING, allowNull: true
+      },
+      region: {
+        type: Sequelize.STRING, allowNull: true
+      },
+      working_hours_note: {
         type: Sequelize.STRING, allowNull: true
       }
+
     })
   },
   down: (queryInterface, Sequelize) => {
