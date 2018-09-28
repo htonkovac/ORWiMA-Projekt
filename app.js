@@ -5,9 +5,10 @@ var logger = require('morgan')
 
 var locationsRouter = require('./routes/locations')
 var countriesAndCitiesRouter = require('./routes/countriesAndCities')
-
+var cors = require('cors')
 var app = express()
 
+app.use(cors)
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
