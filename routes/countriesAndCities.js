@@ -9,7 +9,7 @@ let router = express.Router()
 /* GET get all countries */
 router.get('/countries', async (req, res) => {
     try {
-      const result = await sequelize.query('SELECT DISTINCT country, country_slug FROM "Locations" WHERE country IS NOT NULL', { type: sequelize.QueryTypes.SELECT})
+      const result = await sequelize.query('SELECT DISTINCT country, country_slug, country_english FROM "Locations" WHERE country IS NOT NULL', { type: sequelize.QueryTypes.SELECT})
     
       return res.status(HttpStatus.OK).json({result})
     } catch (err) {
@@ -21,7 +21,7 @@ router.get('/countries', async (req, res) => {
   /* GET get all cities */
 router.get('/cities/:country_slug', async (req, res) => {
   try {
-    const result = await sequelize.query('SELECT DISTINCT city, city_slug, country, country_slug FROM "Locations" WHERE country_slug = :country_slug', { replacements: {country_slug: req.params.country_slug}, type: sequelize.QueryTypes.SELECT})
+    const result = await sequelize.query('SELECT DISTINCT city, city_slug, country, country_slug, country_english FROM "Locations" WHERE country_slug = :country_slug', { replacements: {country_slug: req.params.country_slug}, type: sequelize.QueryTypes.SELECT})
   
     return res.status(HttpStatus.OK).json({result})
   } catch (err) {
