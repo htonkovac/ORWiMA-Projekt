@@ -17,7 +17,8 @@ const reqBodyConstants = {
   city_slug: 'city_slug',
   country_slug: 'country_slug',
   region: 'region',
-  working_hours_note: 'working_hours_note'
+  working_hours_note: 'working_hours_note',
+  country_english: 'country_english'
 }
 
 const queryConstants = {
@@ -50,7 +51,8 @@ module.exports = (sequelize, DataTypes) => {
     city_slug: DataTypes.STRING,
     country_slug: DataTypes.STRING,
     region: DataTypes.STRING,
-    working_hours_note: DataTypes.STRING
+    working_hours_note: DataTypes.STRING,
+    country_english: DataTypes.STRING
   },
     {
       setterMethods: {
@@ -78,7 +80,8 @@ module.exports = (sequelize, DataTypes) => {
       city_slug: body[reqBodyConstants.city_slug],
       country_slug: body[reqBodyConstants.country_slug],
       region: body[reqBodyConstants.region],
-      working_hours_note: body[reqBodyConstants.working_hours_note]
+      working_hours_note: body[reqBodyConstants.working_hours_note],
+      country_english: body[reqBodyConstants.country_english]
     }
   }
 
@@ -123,7 +126,8 @@ module.exports = (sequelize, DataTypes) => {
       city_slug: body[reqBodyConstants.city_slug] || this.city_slug,
       country_slug: body[reqBodyConstants.country_slug] || this.country_slug,
       region: body[reqBodyConstants.region] || this.region,
-      working_hours_note: body[reqBodyConstants.working_hours_note] || this.working_hours_note
+      working_hours_note: body[reqBodyConstants.working_hours_note] || this.working_hours_note,
+      country_english: body[reqBodyConstants.country_english] || this.country_english
     }
   }
 

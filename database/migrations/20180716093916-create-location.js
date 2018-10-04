@@ -58,8 +58,10 @@ module.exports = {
       },
       working_hours_note: {
         type: Sequelize.STRING, allowNull: true
+      },
+      country_english: {
+        type: Sequelize.STRING, allowNull: true
       }
-
     })
   },
   down: (queryInterface, Sequelize) => {
