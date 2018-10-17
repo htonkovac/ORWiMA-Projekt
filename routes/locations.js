@@ -62,7 +62,7 @@ router.put('/:location_id', [
   }
 })
 
-/* DELETE read one location by location_id */
+/* DELETE one location by location_id */
 router.delete('/:location_id', [
   check.param('location_id').isInt()
 ], invalidRequestHandler, (req, res, next) => {
